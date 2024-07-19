@@ -35,7 +35,7 @@ def consulta_datos_cliente(ID_CLIENTE: int):
     , TELEFONO, URL_LOGO, CORREO_SOPORTE, MENSAJE_CORREO, URL_CHATBOT, REPRESENTANTE, CARGO_REPRESENTANTE y NOMBRE_PLANTILLA. 
 
     ## **Parámetros obligatorios:**
-        - ID_CLIENTE -> ID del cliente.
+        - ID_CLIENTE -> ID del cliente en la base de datos UL.
         
     ## **Códigos retornados:**
         - 200 -> Registros encontrados.
@@ -60,7 +60,7 @@ def consulta_datos_cliente(ID_CLIENTE: int):
     """
     with engine.connect() as connection:
         consulta_sql = text("""
-            SELECT c.ID_CLIENTE, c.IDENTIFICACION, c.NOMBRE_CLIENTE, c.NOMBRE_CHATBOT, c.URL_SCRIPT, c.MANEJO_VOZ, c.TELEFONO, c.URL_LOGO, c.CORREO_SOPORTE, c.MENSAJE_CORREO, 
+            SELECT c.ID_CLIENTE, c.IDENTIFICACION, c.NOMBRE_CLIENTE, c.NOMBRE_CHATBOT, c.URL_SCRIPT, c.MANEJO_VOZ, c.TELEFONO, c.URL_LOGO, c.CORREO_ASISTENTEIA, c.MENSAJE_CORREO, 
                             c.URL_CHATBOT, c.REPRESENTANTE, c.CARGO_REPRESENTANTE, c.NOMBRE_PLANTILLA FROM CLIENTE c WHERE c.ID_CLIENTE = :ID_CLIENTE;
         """).params(ID_CLIENTE=ID_CLIENTE)
         result = connection.execute(consulta_sql)
