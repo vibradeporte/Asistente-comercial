@@ -2,7 +2,7 @@
 import os
 import requests
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
 from jwt_manager import JWTBearer
@@ -12,6 +12,7 @@ AUTH_KEY = os.getenv("AUTH_KEY")
 API_URL = "https://api.turbo-smtp.com/api/v2/mail/send"
 AUTH_USER_TSMTP = os.getenv("AUTH_USER_TSMTP")
 AUTH_PASS_TSMTP = os.getenv("AUTH_PASS_TSMTP")
+MVAPI_KEY = os.getenv("MVAPI_KEY")
 
 MAX_LENGTH_CORREO = 80
 
@@ -83,3 +84,19 @@ def enviar_correos(batch: EmailBatchSchema):
             message_ids.append(message_id)
 
     return {"message": "Todos los correos fueron enviados exitosamente.", "message_ids": message_ids}
+
+
+
+
+#Servicio para realizar verificacion de correos con la plataforma millionviewer
+@correo_archivo_adjunto_router.get("/verificar_email/", tags=['correo'], status_code=200, dependencies=[Depends(JWTBearer())])
+def verificar_correo(email: str = Query(max_length=MAX_LENGTH_CORREO)):
+    url = f"https://api.millionverifier.com/api/v3/?api={MVAPI_KEY}&email={email}&timeout=20"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()  # Devuelve la respuesta de la API como JSON
+        else:
+            raise HTTPException(status_code=response.status_code, detail="Error en la solicitud a MillionVerifier")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
