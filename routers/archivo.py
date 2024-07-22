@@ -5,6 +5,8 @@ import os
 from typing import List
 from pydantic import BaseModel
 import json
+import base64
+from io import BytesIO
 from jwt_manager import JWTBearer
 
 archivo_router = APIRouter()
@@ -26,7 +28,7 @@ class Cotizacion(BaseModel):
     representante: str
     url_chatbot: str
     cargo_representante: str
-    correo_soporte: str
+    correo_asistenteia: str
     telefono: str
     nombre_plantilla: str
 
@@ -67,8 +69,8 @@ async def convert_word(
             paragraph.text = paragraph.text.replace("URL_CHATBOT", cotizacion.url_chatbot)
         if "CARGOREPRE" in paragraph.text:
             paragraph.text = paragraph.text.replace("CARGOREPRE", cotizacion.cargo_representante)
-        if "CORREO_SOPORTE" in paragraph.text:
-            paragraph.text = paragraph.text.replace("CORREO_SOPORTE", cotizacion.correo_soporte)
+        if "CORREO_ASISTENTEIA" in paragraph.text:
+            paragraph.text = paragraph.text.replace("CORREO_ASISTENTEIA", cotizacion.correo_asistenteia)
         if "TELEFONO" in paragraph.text:
             paragraph.text = paragraph.text.replace("TELEFONO", cotizacion.telefono)
 
@@ -89,21 +91,19 @@ async def convert_word(
                 row.cells[4].text = producto.valor_unitario
                 row.cells[5].text = f"${producto.valor_total}"
 
-    # Guardar el documento modificado
-    modified_docx_path = os.path.join(temp_dir, f"cotizacion_{cotizacion.cliente}_{cotizacion.usuario}.docx")
-    document.save(modified_docx_path)
+    # Guardar el documento modificado en un buffer de bytes
+    buffer = BytesIO()
+    document.save(buffer)
+    buffer.seek(0)
 
-    # Verificar si el documento modificado fue guardado correctamente
-    if not os.path.exists(modified_docx_path):
-        raise RuntimeError(f"Failed to save the modified document: {modified_docx_path}")
+    # Codificar el archivo en base64
+    base64_content = base64.b64encode(buffer.read()).decode('utf-8')
 
-    # Generar la URL para la descarga del archivo
-    base_url = str(request.base_url)
-    download_url = os.path.join(base_url, temp_dir, os.path.basename(modified_docx_path)).replace("\\", "/")
-
-    # Devolver la URL del archivo modificado
+    # Devolver el contenido base64, el nombre y el tipo de archivo
     response = {
-        "download_url": download_url
+        "content": base64_content,
+        "name": f"cotizacion_{cotizacion.cliente}_{cotizacion.usuario}.docx",
+        "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     }
 
     return JSONResponse(content=response)

@@ -7,9 +7,10 @@ from routers.archivo import archivo_router
 from fastapi.staticfiles import StaticFiles
 import requests
 from routers.datos_cliente import consulta_datos_cliente_router
-from routers.correos import correo_router
+from routers.correos import correo_archivo_adjunto_router
 from routers.insert_datos_usuario import insert_datos_usuarios_router
 from routers.insert_datos_sesion import insert_datos_sesion_router
+
 
 app = FastAPI()
 app.title = "ASISTENTE COMERCIAL API"
@@ -24,7 +25,8 @@ app.include_router(insert_datos_usuarios_router)
 app.include_router(insert_datos_sesion_router)
 
 
-app.include_router(correo_router)
+
+app.include_router(correo_archivo_adjunto_router)
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
