@@ -52,7 +52,6 @@ async def convert_word(
 
     # Cargar el documento existente
     document = Document(input_path)
-
     # Reemplazar texto en párrafos
     for paragraph in document.paragraphs:
         if "FECHA" in paragraph.text:
@@ -60,7 +59,9 @@ async def convert_word(
         if "USUARIO" in paragraph.text:
             paragraph.text = paragraph.text.replace("USUARIO", cotizacion.usuario)
         if "VALORTOTAL" in paragraph.text:
-            paragraph.text = paragraph.text.replace("VALORTOTAL", cotizacion.valor_total)
+            # Convertir valor_total a un número antes de formatear
+            valor_total = float(cotizacion.valor_total)
+            paragraph.text = paragraph.text.replace("VALORTOTAL", f"{valor_total:,.0f}")
         if "CLIENTE" in paragraph.text:
             paragraph.text = paragraph.text.replace("CLIENTE", cotizacion.cliente)
         if "REPRESENTANTE" in paragraph.text:
@@ -73,6 +74,7 @@ async def convert_word(
             paragraph.text = paragraph.text.replace("CORREO_ASISTENTEIA", cotizacion.correo_asistenteia)
         if "TELEFONO" in paragraph.text:
             paragraph.text = paragraph.text.replace("TELEFONO", cotizacion.telefono)
+
 
     # Buscar la tabla de cotización en el documento
     for table in document.tables:
@@ -88,8 +90,14 @@ async def convert_word(
                 row.cells[1].text = producto.producto
                 row.cells[2].text = producto.descripcion
                 row.cells[3].text = producto.unidad
-                row.cells[4].text = f"${producto.valor_unitario}"
-                row.cells[5].text = f"${producto.valor_total}"
+                
+                # Convertir valor_unitario y valor_total a números antes de formatear
+                valor_unitario = float(producto.valor_unitario)
+                valor_total = float(producto.valor_total)
+                
+                row.cells[4].text = f"${valor_unitario:,.0f}"
+                row.cells[5].text = f"${valor_total:,.0f}"
+
 
     # Guardar el documento modificado en un buffer de bytes
     buffer = BytesIO()
