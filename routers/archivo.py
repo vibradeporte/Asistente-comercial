@@ -88,7 +88,7 @@ async def convert_word(
                 row.cells[1].text = producto.producto
                 row.cells[2].text = producto.descripcion
                 row.cells[3].text = producto.unidad
-                row.cells[4].text = producto.valor_unitario
+                row.cells[4].text = f"${producto.valor_unitario}"
                 row.cells[5].text = f"${producto.valor_total}"
 
     # Guardar el documento modificado en un buffer de bytes
@@ -107,3 +107,4 @@ async def convert_word(
     }
 
     return JSONResponse(content=response)
+
