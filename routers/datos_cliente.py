@@ -20,8 +20,8 @@ nombre_base_datos = os.getenv("NAME_DB_UL")
 # Codificar la contraseña para la URL de conexión
 contrasena_codificada = quote_plus(contrasena)
 DATABASE_URL = f"mysql+mysqlconnector://{usuario}:{contrasena_codificada}@{host}/{nombre_base_datos}"
-engine = create_engine(DATABASE_URL)
 
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 # Crear el enrutador de FastAPI
 consulta_datos_cliente_router = APIRouter()
 
